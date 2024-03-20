@@ -1,0 +1,1465 @@
+   1              	 .cpu cortex-m0
+   2              	 .fpu softvfp
+   3              	 .eabi_attribute 20,1
+   4              	 .eabi_attribute 21,1
+   5              	 .eabi_attribute 23,3
+   6              	 .eabi_attribute 24,1
+   7              	 .eabi_attribute 25,1
+   8              	 .eabi_attribute 26,1
+   9              	 .eabi_attribute 30,6
+  10              	 .eabi_attribute 34,0
+  11              	 .eabi_attribute 18,4
+  12              	 .code 16
+  13              	 .file "heap.c"
+  14              	 .text
+  15              	.Ltext0:
+  16              	 .cfi_sections .debug_frame
+  17              	 .section .bss.ucHeap,"aw",%nobits
+  18              	 .align 2
+  21              	ucHeap:
+  22 0000 00000000 	 .space 10000
+  22      00000000 
+  22      00000000 
+  22      00000000 
+  22      00000000 
+  23              	 .section .rodata.xHeapStructSize,"a",%progbits
+  24              	 .align 2
+  27              	xHeapStructSize:
+  28 0000 08000000 	 .word 8
+  29              	 .section .bss.xStart,"aw",%nobits
+  30              	 .align 2
+  33              	xStart:
+  34 0000 00000000 	 .space 8
+  34      00000000 
+  35              	 .section .bss.pxEnd,"aw",%nobits
+  36              	 .align 2
+  39              	pxEnd:
+  40 0000 00000000 	 .space 4
+  41              	 .section .bss.xFreeBytesRemaining,"aw",%nobits
+  42              	 .align 2
+  45              	xFreeBytesRemaining:
+  46 0000 00000000 	 .space 4
+  47              	 .section .bss.xMinimumEverFreeBytesRemaining,"aw",%nobits
+  48              	 .align 2
+  51              	xMinimumEverFreeBytesRemaining:
+  52 0000 00000000 	 .space 4
+  53              	 .section .bss.xNumberOfSuccessfulAllocations,"aw",%nobits
+  54              	 .align 2
+  57              	xNumberOfSuccessfulAllocations:
+  58 0000 00000000 	 .space 4
+  59              	 .section .bss.xNumberOfSuccessfulFrees,"aw",%nobits
+  60              	 .align 2
+  63              	xNumberOfSuccessfulFrees:
+  64 0000 00000000 	 .space 4
+  65              	 .section .bss.xBlockAllocatedBit,"aw",%nobits
+  66              	 .align 2
+  69              	xBlockAllocatedBit:
+  70 0000 00000000 	 .space 4
+  71              	 .section .text.pvPortMalloc,"ax",%progbits
+  72              	 .align 2
+  73              	 .global pvPortMalloc
+  74              	 .code 16
+  75              	 .thumb_func
+  77              	pvPortMalloc:
+  78              	.LFB42:
+  79              	 .file 1 "../Dave/Generated/FREERTOS/heap_4.h"
+   1:../Dave/Generated/FREERTOS/heap_4.h **** /*
+   2:../Dave/Generated/FREERTOS/heap_4.h ****  * FreeRTOS Kernel V10.4.2
+   3:../Dave/Generated/FREERTOS/heap_4.h ****  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+   4:../Dave/Generated/FREERTOS/heap_4.h ****  *
+   5:../Dave/Generated/FREERTOS/heap_4.h ****  * Permission is hereby granted, free of charge, to any person obtaining a copy of
+   6:../Dave/Generated/FREERTOS/heap_4.h ****  * this software and associated documentation files (the "Software"), to deal in
+   7:../Dave/Generated/FREERTOS/heap_4.h ****  * the Software without restriction, including without limitation the rights to
+   8:../Dave/Generated/FREERTOS/heap_4.h ****  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+   9:../Dave/Generated/FREERTOS/heap_4.h ****  * the Software, and to permit persons to whom the Software is furnished to do so,
+  10:../Dave/Generated/FREERTOS/heap_4.h ****  * subject to the following conditions:
+  11:../Dave/Generated/FREERTOS/heap_4.h ****  *
+  12:../Dave/Generated/FREERTOS/heap_4.h ****  * The above copyright notice and this permission notice shall be included in all
+  13:../Dave/Generated/FREERTOS/heap_4.h ****  * copies or substantial portions of the Software.
+  14:../Dave/Generated/FREERTOS/heap_4.h ****  *
+  15:../Dave/Generated/FREERTOS/heap_4.h ****  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  16:../Dave/Generated/FREERTOS/heap_4.h ****  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+  17:../Dave/Generated/FREERTOS/heap_4.h ****  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+  18:../Dave/Generated/FREERTOS/heap_4.h ****  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  19:../Dave/Generated/FREERTOS/heap_4.h ****  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  20:../Dave/Generated/FREERTOS/heap_4.h ****  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  21:../Dave/Generated/FREERTOS/heap_4.h ****  *
+  22:../Dave/Generated/FREERTOS/heap_4.h ****  * https://www.FreeRTOS.org
+  23:../Dave/Generated/FREERTOS/heap_4.h ****  * https://github.com/FreeRTOS
+  24:../Dave/Generated/FREERTOS/heap_4.h ****  *
+  25:../Dave/Generated/FREERTOS/heap_4.h ****  */
+  26:../Dave/Generated/FREERTOS/heap_4.h **** 
+  27:../Dave/Generated/FREERTOS/heap_4.h **** /*
+  28:../Dave/Generated/FREERTOS/heap_4.h ****  * A sample implementation of pvPortMalloc() and vPortFree() that combines
+  29:../Dave/Generated/FREERTOS/heap_4.h ****  * (coalescences) adjacent memory blocks as they are freed, and in so doing
+  30:../Dave/Generated/FREERTOS/heap_4.h ****  * limits memory fragmentation.
+  31:../Dave/Generated/FREERTOS/heap_4.h ****  *
+  32:../Dave/Generated/FREERTOS/heap_4.h ****  * See heap_1.c, heap_2.c and heap_3.c for alternative implementations, and the
+  33:../Dave/Generated/FREERTOS/heap_4.h ****  * memory management pages of https://www.FreeRTOS.org for more information.
+  34:../Dave/Generated/FREERTOS/heap_4.h ****  */
+  35:../Dave/Generated/FREERTOS/heap_4.h **** #include <stdlib.h>
+  36:../Dave/Generated/FREERTOS/heap_4.h **** 
+  37:../Dave/Generated/FREERTOS/heap_4.h **** /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
+  38:../Dave/Generated/FREERTOS/heap_4.h ****  * all the API functions to use the MPU wrappers.  That should only be done when
+  39:../Dave/Generated/FREERTOS/heap_4.h ****  * task.h is included from an application file. */
+  40:../Dave/Generated/FREERTOS/heap_4.h **** #define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+  41:../Dave/Generated/FREERTOS/heap_4.h **** 
+  42:../Dave/Generated/FREERTOS/heap_4.h **** #include "FreeRTOS.h"
+  43:../Dave/Generated/FREERTOS/heap_4.h **** #include "task.h"
+  44:../Dave/Generated/FREERTOS/heap_4.h **** 
+  45:../Dave/Generated/FREERTOS/heap_4.h **** #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+  46:../Dave/Generated/FREERTOS/heap_4.h **** 
+  47:../Dave/Generated/FREERTOS/heap_4.h **** #if ( configSUPPORT_DYNAMIC_ALLOCATION == 0 )
+  48:../Dave/Generated/FREERTOS/heap_4.h ****     #error This file must not be used if configSUPPORT_DYNAMIC_ALLOCATION is 0
+  49:../Dave/Generated/FREERTOS/heap_4.h **** #endif
+  50:../Dave/Generated/FREERTOS/heap_4.h **** 
+  51:../Dave/Generated/FREERTOS/heap_4.h **** /* Block sizes must not get too small. */
+  52:../Dave/Generated/FREERTOS/heap_4.h **** #define heapMINIMUM_BLOCK_SIZE    ( ( size_t ) ( xHeapStructSize << 1 ) )
+  53:../Dave/Generated/FREERTOS/heap_4.h **** 
+  54:../Dave/Generated/FREERTOS/heap_4.h **** /* Assumes 8bit bytes! */
+  55:../Dave/Generated/FREERTOS/heap_4.h **** #define heapBITS_PER_BYTE         ( ( size_t ) 8 )
+  56:../Dave/Generated/FREERTOS/heap_4.h **** 
+  57:../Dave/Generated/FREERTOS/heap_4.h **** /* Allocate the memory for the heap. */
+  58:../Dave/Generated/FREERTOS/heap_4.h **** #if ( configAPPLICATION_ALLOCATED_HEAP == 1 )
+  59:../Dave/Generated/FREERTOS/heap_4.h **** 
+  60:../Dave/Generated/FREERTOS/heap_4.h **** /* The application writer has already defined the array used for the RTOS
+  61:../Dave/Generated/FREERTOS/heap_4.h **** * heap - probably so it can be placed in a special segment or address. */
+  62:../Dave/Generated/FREERTOS/heap_4.h ****     extern uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+  63:../Dave/Generated/FREERTOS/heap_4.h **** #else
+  64:../Dave/Generated/FREERTOS/heap_4.h ****     PRIVILEGED_DATA static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+  65:../Dave/Generated/FREERTOS/heap_4.h **** #endif /* configAPPLICATION_ALLOCATED_HEAP */
+  66:../Dave/Generated/FREERTOS/heap_4.h **** 
+  67:../Dave/Generated/FREERTOS/heap_4.h **** /* Define the linked list structure.  This is used to link free blocks in order
+  68:../Dave/Generated/FREERTOS/heap_4.h ****  * of their memory address. */
+  69:../Dave/Generated/FREERTOS/heap_4.h **** typedef struct A_BLOCK_LINK
+  70:../Dave/Generated/FREERTOS/heap_4.h **** {
+  71:../Dave/Generated/FREERTOS/heap_4.h ****     struct A_BLOCK_LINK * pxNextFreeBlock; /*<< The next free block in the list. */
+  72:../Dave/Generated/FREERTOS/heap_4.h ****     size_t xBlockSize;                     /*<< The size of the free block. */
+  73:../Dave/Generated/FREERTOS/heap_4.h **** } BlockLink_t;
+  74:../Dave/Generated/FREERTOS/heap_4.h **** 
+  75:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+  76:../Dave/Generated/FREERTOS/heap_4.h **** 
+  77:../Dave/Generated/FREERTOS/heap_4.h **** /*
+  78:../Dave/Generated/FREERTOS/heap_4.h ****  * Inserts a block of memory that is being freed into the correct position in
+  79:../Dave/Generated/FREERTOS/heap_4.h ****  * the list of free memory blocks.  The block being freed will be merged with
+  80:../Dave/Generated/FREERTOS/heap_4.h ****  * the block in front it and/or the block behind it if the memory blocks are
+  81:../Dave/Generated/FREERTOS/heap_4.h ****  * adjacent to each other.
+  82:../Dave/Generated/FREERTOS/heap_4.h ****  */
+  83:../Dave/Generated/FREERTOS/heap_4.h **** static void prvInsertBlockIntoFreeList( BlockLink_t * pxBlockToInsert ) PRIVILEGED_FUNCTION;
+  84:../Dave/Generated/FREERTOS/heap_4.h **** 
+  85:../Dave/Generated/FREERTOS/heap_4.h **** /*
+  86:../Dave/Generated/FREERTOS/heap_4.h ****  * Called automatically to setup the required heap structures the first time
+  87:../Dave/Generated/FREERTOS/heap_4.h ****  * pvPortMalloc() is called.
+  88:../Dave/Generated/FREERTOS/heap_4.h ****  */
+  89:../Dave/Generated/FREERTOS/heap_4.h **** static void prvHeapInit( void ) PRIVILEGED_FUNCTION;
+  90:../Dave/Generated/FREERTOS/heap_4.h **** 
+  91:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+  92:../Dave/Generated/FREERTOS/heap_4.h **** 
+  93:../Dave/Generated/FREERTOS/heap_4.h **** /* The size of the structure placed at the beginning of each allocated memory
+  94:../Dave/Generated/FREERTOS/heap_4.h ****  * block must by correctly byte aligned. */
+  95:../Dave/Generated/FREERTOS/heap_4.h **** static const size_t xHeapStructSize = ( sizeof( BlockLink_t ) + ( ( size_t ) ( portBYTE_ALIGNMENT -
+  96:../Dave/Generated/FREERTOS/heap_4.h **** 
+  97:../Dave/Generated/FREERTOS/heap_4.h **** /* Create a couple of list links to mark the start and end of the list. */
+  98:../Dave/Generated/FREERTOS/heap_4.h **** PRIVILEGED_DATA static BlockLink_t xStart, * pxEnd = NULL;
+  99:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 100:../Dave/Generated/FREERTOS/heap_4.h **** /* Keeps track of the number of calls to allocate and free memory as well as the
+ 101:../Dave/Generated/FREERTOS/heap_4.h ****  * number of free bytes remaining, but says nothing about fragmentation. */
+ 102:../Dave/Generated/FREERTOS/heap_4.h **** PRIVILEGED_DATA static size_t xFreeBytesRemaining = 0U;
+ 103:../Dave/Generated/FREERTOS/heap_4.h **** PRIVILEGED_DATA static size_t xMinimumEverFreeBytesRemaining = 0U;
+ 104:../Dave/Generated/FREERTOS/heap_4.h **** PRIVILEGED_DATA static size_t xNumberOfSuccessfulAllocations = 0;
+ 105:../Dave/Generated/FREERTOS/heap_4.h **** PRIVILEGED_DATA static size_t xNumberOfSuccessfulFrees = 0;
+ 106:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 107:../Dave/Generated/FREERTOS/heap_4.h **** /* Gets set to the top bit of an size_t type.  When this bit in the xBlockSize
+ 108:../Dave/Generated/FREERTOS/heap_4.h ****  * member of an BlockLink_t structure is set then the block belongs to the
+ 109:../Dave/Generated/FREERTOS/heap_4.h ****  * application.  When the bit is free the block is still part of the free heap
+ 110:../Dave/Generated/FREERTOS/heap_4.h ****  * space. */
+ 111:../Dave/Generated/FREERTOS/heap_4.h **** PRIVILEGED_DATA static size_t xBlockAllocatedBit = 0;
+ 112:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 113:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+ 114:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 115:../Dave/Generated/FREERTOS/heap_4.h **** void * pvPortMalloc( size_t xWantedSize )
+ 116:../Dave/Generated/FREERTOS/heap_4.h **** {
+  80              	 .loc 1 116 0
+  81              	 .cfi_startproc
+  82 0000 80B5     	 push {r7,lr}
+  83              	.LCFI0:
+  84              	 .cfi_def_cfa_offset 8
+  85              	 .cfi_offset 7,-8
+  86              	 .cfi_offset 14,-4
+  87 0002 86B0     	 sub sp,sp,#24
+  88              	.LCFI1:
+  89              	 .cfi_def_cfa_offset 32
+  90 0004 00AF     	 add r7,sp,#0
+  91              	.LCFI2:
+  92              	 .cfi_def_cfa_register 7
+  93 0006 7860     	 str r0,[r7,#4]
+ 117:../Dave/Generated/FREERTOS/heap_4.h ****     BlockLink_t * pxBlock, * pxPreviousBlock, * pxNewBlockLink;
+ 118:../Dave/Generated/FREERTOS/heap_4.h ****     void * pvReturn = NULL;
+  94              	 .loc 1 118 0
+  95 0008 0023     	 mov r3,#0
+  96 000a FB60     	 str r3,[r7,#12]
+ 119:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 120:../Dave/Generated/FREERTOS/heap_4.h ****     vTaskSuspendAll();
+  97              	 .loc 1 120 0
+  98 000c FFF7FEFF 	 bl vTaskSuspendAll
+ 121:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 122:../Dave/Generated/FREERTOS/heap_4.h ****         /* If this is the first call to malloc then the heap will require
+ 123:../Dave/Generated/FREERTOS/heap_4.h ****          * initialisation to setup the list of free blocks. */
+ 124:../Dave/Generated/FREERTOS/heap_4.h ****         if( pxEnd == NULL )
+  99              	 .loc 1 124 0
+ 100 0010 4B4B     	 ldr r3,.L16
+ 101 0012 1B68     	 ldr r3,[r3]
+ 102 0014 002B     	 cmp r3,#0
+ 103 0016 01D1     	 bne .L2
+ 125:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 126:../Dave/Generated/FREERTOS/heap_4.h ****             prvHeapInit();
+ 104              	 .loc 1 126 0
+ 105 0018 FFF7FEFF 	 bl prvHeapInit
+ 106              	.L2:
+ 127:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 128:../Dave/Generated/FREERTOS/heap_4.h ****         else
+ 129:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 130:../Dave/Generated/FREERTOS/heap_4.h ****             mtCOVERAGE_TEST_MARKER();
+ 131:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 132:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 133:../Dave/Generated/FREERTOS/heap_4.h ****         /* Check the requested block size is not so large that the top bit is
+ 134:../Dave/Generated/FREERTOS/heap_4.h ****          * set.  The top bit of the block size member of the BlockLink_t structure
+ 135:../Dave/Generated/FREERTOS/heap_4.h ****          * is used to determine who owns the block - the application or the
+ 136:../Dave/Generated/FREERTOS/heap_4.h ****          * kernel, so it must be free. */
+ 137:../Dave/Generated/FREERTOS/heap_4.h ****         if( ( xWantedSize & xBlockAllocatedBit ) == 0 )
+ 107              	 .loc 1 137 0
+ 108 001c 494B     	 ldr r3,.L16+4
+ 109 001e 1B68     	 ldr r3,[r3]
+ 110 0020 7A68     	 ldr r2,[r7,#4]
+ 111 0022 1340     	 and r3,r2
+ 112 0024 00D0     	 beq .LCB31
+ 113 0026 7EE0     	 b .L3
+ 114              	.LCB31:
+ 138:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 139:../Dave/Generated/FREERTOS/heap_4.h ****             /* The wanted size is increased so it can contain a BlockLink_t
+ 140:../Dave/Generated/FREERTOS/heap_4.h ****              * structure in addition to the requested amount of bytes. */
+ 141:../Dave/Generated/FREERTOS/heap_4.h ****             if( xWantedSize > 0 )
+ 115              	 .loc 1 141 0
+ 116 0028 7B68     	 ldr r3,[r7,#4]
+ 117 002a 002B     	 cmp r3,#0
+ 118 002c 12D0     	 beq .L4
+ 142:../Dave/Generated/FREERTOS/heap_4.h ****             {
+ 143:../Dave/Generated/FREERTOS/heap_4.h ****                 xWantedSize += xHeapStructSize;
+ 119              	 .loc 1 143 0
+ 120 002e 0822     	 mov r2,#8
+ 121 0030 7B68     	 ldr r3,[r7,#4]
+ 122 0032 9B18     	 add r3,r3,r2
+ 123 0034 7B60     	 str r3,[r7,#4]
+ 144:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 145:../Dave/Generated/FREERTOS/heap_4.h ****                 /* Ensure that blocks are always aligned to the required number
+ 146:../Dave/Generated/FREERTOS/heap_4.h ****                  * of bytes. */
+ 147:../Dave/Generated/FREERTOS/heap_4.h ****                 if( ( xWantedSize & portBYTE_ALIGNMENT_MASK ) != 0x00 )
+ 124              	 .loc 1 147 0
+ 125 0036 7B68     	 ldr r3,[r7,#4]
+ 126 0038 0722     	 mov r2,#7
+ 127 003a 1340     	 and r3,r2
+ 128 003c 0AD0     	 beq .L4
+ 148:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 149:../Dave/Generated/FREERTOS/heap_4.h ****                     /* Byte alignment required. */
+ 150:../Dave/Generated/FREERTOS/heap_4.h ****                     xWantedSize += ( portBYTE_ALIGNMENT - ( xWantedSize & portBYTE_ALIGNMENT_MASK )
+ 129              	 .loc 1 150 0
+ 130 003e 7B68     	 ldr r3,[r7,#4]
+ 131 0040 0722     	 mov r2,#7
+ 132 0042 9343     	 bic r3,r2
+ 133 0044 0833     	 add r3,r3,#8
+ 134 0046 7B60     	 str r3,[r7,#4]
+ 151:../Dave/Generated/FREERTOS/heap_4.h ****                     configASSERT( ( xWantedSize & portBYTE_ALIGNMENT_MASK ) == 0 );
+ 135              	 .loc 1 151 0
+ 136 0048 7B68     	 ldr r3,[r7,#4]
+ 137 004a 0722     	 mov r2,#7
+ 138 004c 1340     	 and r3,r2
+ 139 004e 01D0     	 beq .L4
+ 140              	 .loc 1 151 0 is_stmt 0 discriminator 1
+ 141              	
+ 142 0050 72B6     	 cpsid i
+ 143              	
+ 144              	 .code 16
+ 145              	.L5:
+ 146 0052 FEE7     	 b .L5
+ 147              	.L4:
+ 152:../Dave/Generated/FREERTOS/heap_4.h ****                 }
+ 153:../Dave/Generated/FREERTOS/heap_4.h ****                 else
+ 154:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 155:../Dave/Generated/FREERTOS/heap_4.h ****                     mtCOVERAGE_TEST_MARKER();
+ 156:../Dave/Generated/FREERTOS/heap_4.h ****                 }
+ 157:../Dave/Generated/FREERTOS/heap_4.h ****             }
+ 158:../Dave/Generated/FREERTOS/heap_4.h ****             else
+ 159:../Dave/Generated/FREERTOS/heap_4.h ****             {
+ 160:../Dave/Generated/FREERTOS/heap_4.h ****                 mtCOVERAGE_TEST_MARKER();
+ 161:../Dave/Generated/FREERTOS/heap_4.h ****             }
+ 162:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 163:../Dave/Generated/FREERTOS/heap_4.h ****             if( ( xWantedSize > 0 ) && ( xWantedSize <= xFreeBytesRemaining ) )
+ 148              	 .loc 1 163 0 is_stmt 1
+ 149 0054 7B68     	 ldr r3,[r7,#4]
+ 150 0056 002B     	 cmp r3,#0
+ 151 0058 65D0     	 beq .L3
+ 152              	 .loc 1 163 0 is_stmt 0 discriminator 1
+ 153 005a 3B4B     	 ldr r3,.L16+8
+ 154 005c 1B68     	 ldr r3,[r3]
+ 155 005e 7A68     	 ldr r2,[r7,#4]
+ 156 0060 9A42     	 cmp r2,r3
+ 157 0062 60D8     	 bhi .L3
+ 164:../Dave/Generated/FREERTOS/heap_4.h ****             {
+ 165:../Dave/Generated/FREERTOS/heap_4.h ****                 /* Traverse the list from the start	(lowest address) block until
+ 166:../Dave/Generated/FREERTOS/heap_4.h ****                  * one	of adequate size is found. */
+ 167:../Dave/Generated/FREERTOS/heap_4.h ****                 pxPreviousBlock = &xStart;
+ 158              	 .loc 1 167 0 is_stmt 1
+ 159 0064 394B     	 ldr r3,.L16+12
+ 160 0066 3B61     	 str r3,[r7,#16]
+ 168:../Dave/Generated/FREERTOS/heap_4.h ****                 pxBlock = xStart.pxNextFreeBlock;
+ 161              	 .loc 1 168 0
+ 162 0068 384B     	 ldr r3,.L16+12
+ 163 006a 1B68     	 ldr r3,[r3]
+ 164 006c 7B61     	 str r3,[r7,#20]
+ 169:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 170:../Dave/Generated/FREERTOS/heap_4.h ****                 while( ( pxBlock->xBlockSize < xWantedSize ) && ( pxBlock->pxNextFreeBlock != NULL 
+ 165              	 .loc 1 170 0
+ 166 006e 04E0     	 b .L6
+ 167              	.L8:
+ 171:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 172:../Dave/Generated/FREERTOS/heap_4.h ****                     pxPreviousBlock = pxBlock;
+ 168              	 .loc 1 172 0
+ 169 0070 7B69     	 ldr r3,[r7,#20]
+ 170 0072 3B61     	 str r3,[r7,#16]
+ 173:../Dave/Generated/FREERTOS/heap_4.h ****                     pxBlock = pxBlock->pxNextFreeBlock;
+ 171              	 .loc 1 173 0
+ 172 0074 7B69     	 ldr r3,[r7,#20]
+ 173 0076 1B68     	 ldr r3,[r3]
+ 174 0078 7B61     	 str r3,[r7,#20]
+ 175              	.L6:
+ 170:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 176              	 .loc 1 170 0
+ 177 007a 7B69     	 ldr r3,[r7,#20]
+ 178 007c 5A68     	 ldr r2,[r3,#4]
+ 179 007e 7B68     	 ldr r3,[r7,#4]
+ 180 0080 9A42     	 cmp r2,r3
+ 181 0082 03D2     	 bcs .L7
+ 170:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 182              	 .loc 1 170 0 is_stmt 0 discriminator 1
+ 183 0084 7B69     	 ldr r3,[r7,#20]
+ 184 0086 1B68     	 ldr r3,[r3]
+ 185 0088 002B     	 cmp r3,#0
+ 186 008a F1D1     	 bne .L8
+ 187              	.L7:
+ 174:../Dave/Generated/FREERTOS/heap_4.h ****                 }
+ 175:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 176:../Dave/Generated/FREERTOS/heap_4.h ****                 /* If the end marker was reached then a block of adequate size
+ 177:../Dave/Generated/FREERTOS/heap_4.h ****                  * was	not found. */
+ 178:../Dave/Generated/FREERTOS/heap_4.h ****                 if( pxBlock != pxEnd )
+ 188              	 .loc 1 178 0 is_stmt 1
+ 189 008c 2C4B     	 ldr r3,.L16
+ 190 008e 1B68     	 ldr r3,[r3]
+ 191 0090 7A69     	 ldr r2,[r7,#20]
+ 192 0092 9A42     	 cmp r2,r3
+ 193 0094 47D0     	 beq .L3
+ 179:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 180:../Dave/Generated/FREERTOS/heap_4.h ****                     /* Return the memory space pointed to - jumping over the
+ 181:../Dave/Generated/FREERTOS/heap_4.h ****                      * BlockLink_t structure at its start. */
+ 182:../Dave/Generated/FREERTOS/heap_4.h ****                     pvReturn = ( void * ) ( ( ( uint8_t * ) pxPreviousBlock->pxNextFreeBlock ) + xH
+ 194              	 .loc 1 182 0
+ 195 0096 3B69     	 ldr r3,[r7,#16]
+ 196 0098 1B68     	 ldr r3,[r3]
+ 197 009a 0822     	 mov r2,#8
+ 198 009c 9B18     	 add r3,r3,r2
+ 199 009e FB60     	 str r3,[r7,#12]
+ 183:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 184:../Dave/Generated/FREERTOS/heap_4.h ****                     /* This block is being returned for use so must be taken out
+ 185:../Dave/Generated/FREERTOS/heap_4.h ****                      * of the list of free blocks. */
+ 186:../Dave/Generated/FREERTOS/heap_4.h ****                     pxPreviousBlock->pxNextFreeBlock = pxBlock->pxNextFreeBlock;
+ 200              	 .loc 1 186 0
+ 201 00a0 7B69     	 ldr r3,[r7,#20]
+ 202 00a2 1A68     	 ldr r2,[r3]
+ 203 00a4 3B69     	 ldr r3,[r7,#16]
+ 204 00a6 1A60     	 str r2,[r3]
+ 187:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 188:../Dave/Generated/FREERTOS/heap_4.h ****                     /* If the block is larger than required it can be split into
+ 189:../Dave/Generated/FREERTOS/heap_4.h ****                      * two. */
+ 190:../Dave/Generated/FREERTOS/heap_4.h ****                     if( ( pxBlock->xBlockSize - xWantedSize ) > heapMINIMUM_BLOCK_SIZE )
+ 205              	 .loc 1 190 0
+ 206 00a8 7B69     	 ldr r3,[r7,#20]
+ 207 00aa 5A68     	 ldr r2,[r3,#4]
+ 208 00ac 7B68     	 ldr r3,[r7,#4]
+ 209 00ae D21A     	 sub r2,r2,r3
+ 210 00b0 0823     	 mov r3,#8
+ 211 00b2 5B00     	 lsl r3,r3,#1
+ 212 00b4 9A42     	 cmp r2,r3
+ 213 00b6 16D9     	 bls .L9
+ 191:../Dave/Generated/FREERTOS/heap_4.h ****                     {
+ 192:../Dave/Generated/FREERTOS/heap_4.h ****                         /* This block is to be split into two.  Create a new
+ 193:../Dave/Generated/FREERTOS/heap_4.h ****                          * block following the number of bytes requested. The void
+ 194:../Dave/Generated/FREERTOS/heap_4.h ****                          * cast is used to prevent byte alignment warnings from the
+ 195:../Dave/Generated/FREERTOS/heap_4.h ****                          * compiler. */
+ 196:../Dave/Generated/FREERTOS/heap_4.h ****                         pxNewBlockLink = ( void * ) ( ( ( uint8_t * ) pxBlock ) + xWantedSize );
+ 214              	 .loc 1 196 0
+ 215 00b8 7A69     	 ldr r2,[r7,#20]
+ 216 00ba 7B68     	 ldr r3,[r7,#4]
+ 217 00bc D318     	 add r3,r2,r3
+ 218 00be BB60     	 str r3,[r7,#8]
+ 197:../Dave/Generated/FREERTOS/heap_4.h ****                         configASSERT( ( ( ( size_t ) pxNewBlockLink ) & portBYTE_ALIGNMENT_MASK ) =
+ 219              	 .loc 1 197 0
+ 220 00c0 BB68     	 ldr r3,[r7,#8]
+ 221 00c2 0722     	 mov r2,#7
+ 222 00c4 1340     	 and r3,r2
+ 223 00c6 01D0     	 beq .L10
+ 224              	 .loc 1 197 0 is_stmt 0 discriminator 1
+ 225              	
+ 226 00c8 72B6     	 cpsid i
+ 227              	
+ 228              	 .code 16
+ 229              	.L11:
+ 230              	 .loc 1 197 0 discriminator 3
+ 231 00ca FEE7     	 b .L11
+ 232              	.L10:
+ 198:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 199:../Dave/Generated/FREERTOS/heap_4.h ****                         /* Calculate the sizes of two blocks split from the
+ 200:../Dave/Generated/FREERTOS/heap_4.h ****                          * single block. */
+ 201:../Dave/Generated/FREERTOS/heap_4.h ****                         pxNewBlockLink->xBlockSize = pxBlock->xBlockSize - xWantedSize;
+ 233              	 .loc 1 201 0 is_stmt 1
+ 234 00cc 7B69     	 ldr r3,[r7,#20]
+ 235 00ce 5A68     	 ldr r2,[r3,#4]
+ 236 00d0 7B68     	 ldr r3,[r7,#4]
+ 237 00d2 D21A     	 sub r2,r2,r3
+ 238 00d4 BB68     	 ldr r3,[r7,#8]
+ 239 00d6 5A60     	 str r2,[r3,#4]
+ 202:../Dave/Generated/FREERTOS/heap_4.h ****                         pxBlock->xBlockSize = xWantedSize;
+ 240              	 .loc 1 202 0
+ 241 00d8 7B69     	 ldr r3,[r7,#20]
+ 242 00da 7A68     	 ldr r2,[r7,#4]
+ 243 00dc 5A60     	 str r2,[r3,#4]
+ 203:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 204:../Dave/Generated/FREERTOS/heap_4.h ****                         /* Insert the new block into the list of free blocks. */
+ 205:../Dave/Generated/FREERTOS/heap_4.h ****                         prvInsertBlockIntoFreeList( pxNewBlockLink );
+ 244              	 .loc 1 205 0
+ 245 00de BB68     	 ldr r3,[r7,#8]
+ 246 00e0 181C     	 mov r0,r3
+ 247 00e2 FFF7FEFF 	 bl prvInsertBlockIntoFreeList
+ 248              	.L9:
+ 206:../Dave/Generated/FREERTOS/heap_4.h ****                     }
+ 207:../Dave/Generated/FREERTOS/heap_4.h ****                     else
+ 208:../Dave/Generated/FREERTOS/heap_4.h ****                     {
+ 209:../Dave/Generated/FREERTOS/heap_4.h ****                         mtCOVERAGE_TEST_MARKER();
+ 210:../Dave/Generated/FREERTOS/heap_4.h ****                     }
+ 211:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 212:../Dave/Generated/FREERTOS/heap_4.h ****                     xFreeBytesRemaining -= pxBlock->xBlockSize;
+ 249              	 .loc 1 212 0
+ 250 00e6 184B     	 ldr r3,.L16+8
+ 251 00e8 1A68     	 ldr r2,[r3]
+ 252 00ea 7B69     	 ldr r3,[r7,#20]
+ 253 00ec 5B68     	 ldr r3,[r3,#4]
+ 254 00ee D21A     	 sub r2,r2,r3
+ 255 00f0 154B     	 ldr r3,.L16+8
+ 256 00f2 1A60     	 str r2,[r3]
+ 213:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 214:../Dave/Generated/FREERTOS/heap_4.h ****                     if( xFreeBytesRemaining < xMinimumEverFreeBytesRemaining )
+ 257              	 .loc 1 214 0
+ 258 00f4 144B     	 ldr r3,.L16+8
+ 259 00f6 1A68     	 ldr r2,[r3]
+ 260 00f8 154B     	 ldr r3,.L16+16
+ 261 00fa 1B68     	 ldr r3,[r3]
+ 262 00fc 9A42     	 cmp r2,r3
+ 263 00fe 03D2     	 bcs .L12
+ 215:../Dave/Generated/FREERTOS/heap_4.h ****                     {
+ 216:../Dave/Generated/FREERTOS/heap_4.h ****                         xMinimumEverFreeBytesRemaining = xFreeBytesRemaining;
+ 264              	 .loc 1 216 0
+ 265 0100 114B     	 ldr r3,.L16+8
+ 266 0102 1A68     	 ldr r2,[r3]
+ 267 0104 124B     	 ldr r3,.L16+16
+ 268 0106 1A60     	 str r2,[r3]
+ 269              	.L12:
+ 217:../Dave/Generated/FREERTOS/heap_4.h ****                     }
+ 218:../Dave/Generated/FREERTOS/heap_4.h ****                     else
+ 219:../Dave/Generated/FREERTOS/heap_4.h ****                     {
+ 220:../Dave/Generated/FREERTOS/heap_4.h ****                         mtCOVERAGE_TEST_MARKER();
+ 221:../Dave/Generated/FREERTOS/heap_4.h ****                     }
+ 222:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 223:../Dave/Generated/FREERTOS/heap_4.h ****                     /* The block is being returned - it is allocated and owned
+ 224:../Dave/Generated/FREERTOS/heap_4.h ****                      * by the application and has no "next" block. */
+ 225:../Dave/Generated/FREERTOS/heap_4.h ****                     pxBlock->xBlockSize |= xBlockAllocatedBit;
+ 270              	 .loc 1 225 0
+ 271 0108 7B69     	 ldr r3,[r7,#20]
+ 272 010a 5A68     	 ldr r2,[r3,#4]
+ 273 010c 0D4B     	 ldr r3,.L16+4
+ 274 010e 1B68     	 ldr r3,[r3]
+ 275 0110 1A43     	 orr r2,r3
+ 276 0112 7B69     	 ldr r3,[r7,#20]
+ 277 0114 5A60     	 str r2,[r3,#4]
+ 226:../Dave/Generated/FREERTOS/heap_4.h ****                     pxBlock->pxNextFreeBlock = NULL;
+ 278              	 .loc 1 226 0
+ 279 0116 7B69     	 ldr r3,[r7,#20]
+ 280 0118 0022     	 mov r2,#0
+ 281 011a 1A60     	 str r2,[r3]
+ 227:../Dave/Generated/FREERTOS/heap_4.h ****                     xNumberOfSuccessfulAllocations++;
+ 282              	 .loc 1 227 0
+ 283 011c 0D4B     	 ldr r3,.L16+20
+ 284 011e 1B68     	 ldr r3,[r3]
+ 285 0120 5A1C     	 add r2,r3,#1
+ 286 0122 0C4B     	 ldr r3,.L16+20
+ 287 0124 1A60     	 str r2,[r3]
+ 288              	.L3:
+ 228:../Dave/Generated/FREERTOS/heap_4.h ****                 }
+ 229:../Dave/Generated/FREERTOS/heap_4.h ****                 else
+ 230:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 231:../Dave/Generated/FREERTOS/heap_4.h ****                     mtCOVERAGE_TEST_MARKER();
+ 232:../Dave/Generated/FREERTOS/heap_4.h ****                 }
+ 233:../Dave/Generated/FREERTOS/heap_4.h ****             }
+ 234:../Dave/Generated/FREERTOS/heap_4.h ****             else
+ 235:../Dave/Generated/FREERTOS/heap_4.h ****             {
+ 236:../Dave/Generated/FREERTOS/heap_4.h ****                 mtCOVERAGE_TEST_MARKER();
+ 237:../Dave/Generated/FREERTOS/heap_4.h ****             }
+ 238:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 239:../Dave/Generated/FREERTOS/heap_4.h ****         else
+ 240:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 241:../Dave/Generated/FREERTOS/heap_4.h ****             mtCOVERAGE_TEST_MARKER();
+ 242:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 243:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 244:../Dave/Generated/FREERTOS/heap_4.h ****         traceMALLOC( pvReturn, xWantedSize );
+ 245:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 246:../Dave/Generated/FREERTOS/heap_4.h ****     ( void ) xTaskResumeAll();
+ 289              	 .loc 1 246 0
+ 290 0126 FFF7FEFF 	 bl xTaskResumeAll
+ 247:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 248:../Dave/Generated/FREERTOS/heap_4.h ****     #if ( configUSE_MALLOC_FAILED_HOOK == 1 )
+ 249:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 250:../Dave/Generated/FREERTOS/heap_4.h ****             if( pvReturn == NULL )
+ 251:../Dave/Generated/FREERTOS/heap_4.h ****             {
+ 252:../Dave/Generated/FREERTOS/heap_4.h ****                 extern void vApplicationMallocFailedHook( void );
+ 253:../Dave/Generated/FREERTOS/heap_4.h ****                 vApplicationMallocFailedHook();
+ 254:../Dave/Generated/FREERTOS/heap_4.h ****             }
+ 255:../Dave/Generated/FREERTOS/heap_4.h ****             else
+ 256:../Dave/Generated/FREERTOS/heap_4.h ****             {
+ 257:../Dave/Generated/FREERTOS/heap_4.h ****                 mtCOVERAGE_TEST_MARKER();
+ 258:../Dave/Generated/FREERTOS/heap_4.h ****             }
+ 259:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 260:../Dave/Generated/FREERTOS/heap_4.h ****     #endif /* if ( configUSE_MALLOC_FAILED_HOOK == 1 ) */
+ 261:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 262:../Dave/Generated/FREERTOS/heap_4.h ****     configASSERT( ( ( ( size_t ) pvReturn ) & ( size_t ) portBYTE_ALIGNMENT_MASK ) == 0 );
+ 291              	 .loc 1 262 0
+ 292 012a FB68     	 ldr r3,[r7,#12]
+ 293 012c 0722     	 mov r2,#7
+ 294 012e 1340     	 and r3,r2
+ 295 0130 01D0     	 beq .L13
+ 296              	 .loc 1 262 0 is_stmt 0 discriminator 1
+ 297              	
+ 298 0132 72B6     	 cpsid i
+ 299              	
+ 300              	 .code 16
+ 301              	.L14:
+ 302              	 .loc 1 262 0 discriminator 5
+ 303 0134 FEE7     	 b .L14
+ 304              	.L13:
+ 263:../Dave/Generated/FREERTOS/heap_4.h ****     return pvReturn;
+ 305              	 .loc 1 263 0 is_stmt 1
+ 306 0136 FB68     	 ldr r3,[r7,#12]
+ 264:../Dave/Generated/FREERTOS/heap_4.h **** }
+ 307              	 .loc 1 264 0
+ 308 0138 181C     	 mov r0,r3
+ 309 013a BD46     	 mov sp,r7
+ 310 013c 06B0     	 add sp,sp,#24
+ 311              	 
+ 312 013e 80BD     	 pop {r7,pc}
+ 313              	.L17:
+ 314              	 .align 2
+ 315              	.L16:
+ 316 0140 00000000 	 .word pxEnd
+ 317 0144 00000000 	 .word xBlockAllocatedBit
+ 318 0148 00000000 	 .word xFreeBytesRemaining
+ 319 014c 00000000 	 .word xStart
+ 320 0150 00000000 	 .word xMinimumEverFreeBytesRemaining
+ 321 0154 00000000 	 .word xNumberOfSuccessfulAllocations
+ 322              	 .cfi_endproc
+ 323              	.LFE42:
+ 325              	 .section .text.vPortFree,"ax",%progbits
+ 326              	 .align 2
+ 327              	 .global vPortFree
+ 328              	 .code 16
+ 329              	 .thumb_func
+ 331              	vPortFree:
+ 332              	.LFB43:
+ 265:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+ 266:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 267:../Dave/Generated/FREERTOS/heap_4.h **** void vPortFree( void * pv )
+ 268:../Dave/Generated/FREERTOS/heap_4.h **** {
+ 333              	 .loc 1 268 0
+ 334              	 .cfi_startproc
+ 335 0000 80B5     	 push {r7,lr}
+ 336              	.LCFI3:
+ 337              	 .cfi_def_cfa_offset 8
+ 338              	 .cfi_offset 7,-8
+ 339              	 .cfi_offset 14,-4
+ 340 0002 84B0     	 sub sp,sp,#16
+ 341              	.LCFI4:
+ 342              	 .cfi_def_cfa_offset 24
+ 343 0004 00AF     	 add r7,sp,#0
+ 344              	.LCFI5:
+ 345              	 .cfi_def_cfa_register 7
+ 346 0006 7860     	 str r0,[r7,#4]
+ 269:../Dave/Generated/FREERTOS/heap_4.h ****     uint8_t * puc = ( uint8_t * ) pv;
+ 347              	 .loc 1 269 0
+ 348 0008 7B68     	 ldr r3,[r7,#4]
+ 349 000a FB60     	 str r3,[r7,#12]
+ 270:../Dave/Generated/FREERTOS/heap_4.h ****     BlockLink_t * pxLink;
+ 271:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 272:../Dave/Generated/FREERTOS/heap_4.h ****     if( pv != NULL )
+ 350              	 .loc 1 272 0
+ 351 000c 7B68     	 ldr r3,[r7,#4]
+ 352 000e 002B     	 cmp r3,#0
+ 353 0010 3AD0     	 beq .L18
+ 273:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 274:../Dave/Generated/FREERTOS/heap_4.h ****         /* The memory being freed will have an BlockLink_t structure immediately
+ 275:../Dave/Generated/FREERTOS/heap_4.h ****          * before it. */
+ 276:../Dave/Generated/FREERTOS/heap_4.h ****         puc -= xHeapStructSize;
+ 354              	 .loc 1 276 0
+ 355 0012 0823     	 mov r3,#8
+ 356 0014 5B42     	 neg r3,r3
+ 357 0016 FA68     	 ldr r2,[r7,#12]
+ 358 0018 D318     	 add r3,r2,r3
+ 359 001a FB60     	 str r3,[r7,#12]
+ 277:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 278:../Dave/Generated/FREERTOS/heap_4.h ****         /* This casting is to keep the compiler from issuing warnings. */
+ 279:../Dave/Generated/FREERTOS/heap_4.h ****         pxLink = ( void * ) puc;
+ 360              	 .loc 1 279 0
+ 361 001c FB68     	 ldr r3,[r7,#12]
+ 362 001e BB60     	 str r3,[r7,#8]
+ 280:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 281:../Dave/Generated/FREERTOS/heap_4.h ****         /* Check the block is actually allocated. */
+ 282:../Dave/Generated/FREERTOS/heap_4.h ****         configASSERT( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 );
+ 363              	 .loc 1 282 0
+ 364 0020 BB68     	 ldr r3,[r7,#8]
+ 365 0022 5A68     	 ldr r2,[r3,#4]
+ 366 0024 1A4B     	 ldr r3,.L24
+ 367 0026 1B68     	 ldr r3,[r3]
+ 368 0028 1340     	 and r3,r2
+ 369 002a 01D1     	 bne .L20
+ 370              	 .loc 1 282 0 is_stmt 0 discriminator 1
+ 371              	
+ 372 002c 72B6     	 cpsid i
+ 373              	
+ 374              	 .code 16
+ 375              	.L21:
+ 376 002e FEE7     	 b .L21
+ 377              	.L20:
+ 283:../Dave/Generated/FREERTOS/heap_4.h ****         configASSERT( pxLink->pxNextFreeBlock == NULL );
+ 378              	 .loc 1 283 0 is_stmt 1
+ 379 0030 BB68     	 ldr r3,[r7,#8]
+ 380 0032 1B68     	 ldr r3,[r3]
+ 381 0034 002B     	 cmp r3,#0
+ 382 0036 01D0     	 beq .L22
+ 383              	 .loc 1 283 0 is_stmt 0 discriminator 1
+ 384              	
+ 385 0038 72B6     	 cpsid i
+ 386              	
+ 387              	 .code 16
+ 388              	.L23:
+ 389              	 .loc 1 283 0 discriminator 2
+ 390 003a FEE7     	 b .L23
+ 391              	.L22:
+ 284:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 285:../Dave/Generated/FREERTOS/heap_4.h ****         if( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 )
+ 392              	 .loc 1 285 0 is_stmt 1
+ 393 003c BB68     	 ldr r3,[r7,#8]
+ 394 003e 5A68     	 ldr r2,[r3,#4]
+ 395 0040 134B     	 ldr r3,.L24
+ 396 0042 1B68     	 ldr r3,[r3]
+ 397 0044 1340     	 and r3,r2
+ 398 0046 1FD0     	 beq .L18
+ 286:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 287:../Dave/Generated/FREERTOS/heap_4.h ****             if( pxLink->pxNextFreeBlock == NULL )
+ 399              	 .loc 1 287 0
+ 400 0048 BB68     	 ldr r3,[r7,#8]
+ 401 004a 1B68     	 ldr r3,[r3]
+ 402 004c 002B     	 cmp r3,#0
+ 403 004e 1BD1     	 bne .L18
+ 288:../Dave/Generated/FREERTOS/heap_4.h ****             {
+ 289:../Dave/Generated/FREERTOS/heap_4.h ****                 /* The block is being returned to the heap - it is no longer
+ 290:../Dave/Generated/FREERTOS/heap_4.h ****                  * allocated. */
+ 291:../Dave/Generated/FREERTOS/heap_4.h ****                 pxLink->xBlockSize &= ~xBlockAllocatedBit;
+ 404              	 .loc 1 291 0
+ 405 0050 BB68     	 ldr r3,[r7,#8]
+ 406 0052 5A68     	 ldr r2,[r3,#4]
+ 407 0054 0E4B     	 ldr r3,.L24
+ 408 0056 1B68     	 ldr r3,[r3]
+ 409 0058 DB43     	 mvn r3,r3
+ 410 005a 1A40     	 and r2,r3
+ 411 005c BB68     	 ldr r3,[r7,#8]
+ 412 005e 5A60     	 str r2,[r3,#4]
+ 292:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 293:../Dave/Generated/FREERTOS/heap_4.h ****                 vTaskSuspendAll();
+ 413              	 .loc 1 293 0
+ 414 0060 FFF7FEFF 	 bl vTaskSuspendAll
+ 294:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 295:../Dave/Generated/FREERTOS/heap_4.h ****                     /* Add this block to the list of free blocks. */
+ 296:../Dave/Generated/FREERTOS/heap_4.h ****                     xFreeBytesRemaining += pxLink->xBlockSize;
+ 415              	 .loc 1 296 0
+ 416 0064 BB68     	 ldr r3,[r7,#8]
+ 417 0066 5A68     	 ldr r2,[r3,#4]
+ 418 0068 0A4B     	 ldr r3,.L24+4
+ 419 006a 1B68     	 ldr r3,[r3]
+ 420 006c D218     	 add r2,r2,r3
+ 421 006e 094B     	 ldr r3,.L24+4
+ 422 0070 1A60     	 str r2,[r3]
+ 297:../Dave/Generated/FREERTOS/heap_4.h ****                     traceFREE( pv, pxLink->xBlockSize );
+ 298:../Dave/Generated/FREERTOS/heap_4.h ****                     prvInsertBlockIntoFreeList( ( ( BlockLink_t * ) pxLink ) );
+ 423              	 .loc 1 298 0
+ 424 0072 BB68     	 ldr r3,[r7,#8]
+ 425 0074 181C     	 mov r0,r3
+ 426 0076 FFF7FEFF 	 bl prvInsertBlockIntoFreeList
+ 299:../Dave/Generated/FREERTOS/heap_4.h ****                     xNumberOfSuccessfulFrees++;
+ 427              	 .loc 1 299 0
+ 428 007a 074B     	 ldr r3,.L24+8
+ 429 007c 1B68     	 ldr r3,[r3]
+ 430 007e 5A1C     	 add r2,r3,#1
+ 431 0080 054B     	 ldr r3,.L24+8
+ 432 0082 1A60     	 str r2,[r3]
+ 300:../Dave/Generated/FREERTOS/heap_4.h ****                 }
+ 301:../Dave/Generated/FREERTOS/heap_4.h ****                 ( void ) xTaskResumeAll();
+ 433              	 .loc 1 301 0
+ 434 0084 FFF7FEFF 	 bl xTaskResumeAll
+ 435              	.L18:
+ 302:../Dave/Generated/FREERTOS/heap_4.h ****             }
+ 303:../Dave/Generated/FREERTOS/heap_4.h ****             else
+ 304:../Dave/Generated/FREERTOS/heap_4.h ****             {
+ 305:../Dave/Generated/FREERTOS/heap_4.h ****                 mtCOVERAGE_TEST_MARKER();
+ 306:../Dave/Generated/FREERTOS/heap_4.h ****             }
+ 307:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 308:../Dave/Generated/FREERTOS/heap_4.h ****         else
+ 309:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 310:../Dave/Generated/FREERTOS/heap_4.h ****             mtCOVERAGE_TEST_MARKER();
+ 311:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 312:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 313:../Dave/Generated/FREERTOS/heap_4.h **** }
+ 436              	 .loc 1 313 0
+ 437 0088 BD46     	 mov sp,r7
+ 438 008a 04B0     	 add sp,sp,#16
+ 439              	 
+ 440 008c 80BD     	 pop {r7,pc}
+ 441              	.L25:
+ 442 008e C046     	 .align 2
+ 443              	.L24:
+ 444 0090 00000000 	 .word xBlockAllocatedBit
+ 445 0094 00000000 	 .word xFreeBytesRemaining
+ 446 0098 00000000 	 .word xNumberOfSuccessfulFrees
+ 447              	 .cfi_endproc
+ 448              	.LFE43:
+ 450              	 .section .text.xPortGetFreeHeapSize,"ax",%progbits
+ 451              	 .align 2
+ 452              	 .global xPortGetFreeHeapSize
+ 453              	 .code 16
+ 454              	 .thumb_func
+ 456              	xPortGetFreeHeapSize:
+ 457              	.LFB44:
+ 314:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+ 315:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 316:../Dave/Generated/FREERTOS/heap_4.h **** size_t xPortGetFreeHeapSize( void )
+ 317:../Dave/Generated/FREERTOS/heap_4.h **** {
+ 458              	 .loc 1 317 0
+ 459              	 .cfi_startproc
+ 460 0000 80B5     	 push {r7,lr}
+ 461              	.LCFI6:
+ 462              	 .cfi_def_cfa_offset 8
+ 463              	 .cfi_offset 7,-8
+ 464              	 .cfi_offset 14,-4
+ 465 0002 00AF     	 add r7,sp,#0
+ 466              	.LCFI7:
+ 467              	 .cfi_def_cfa_register 7
+ 318:../Dave/Generated/FREERTOS/heap_4.h ****     return xFreeBytesRemaining;
+ 468              	 .loc 1 318 0
+ 469 0004 024B     	 ldr r3,.L28
+ 470 0006 1B68     	 ldr r3,[r3]
+ 319:../Dave/Generated/FREERTOS/heap_4.h **** }
+ 471              	 .loc 1 319 0
+ 472 0008 181C     	 mov r0,r3
+ 473 000a BD46     	 mov sp,r7
+ 474              	 
+ 475 000c 80BD     	 pop {r7,pc}
+ 476              	.L29:
+ 477 000e C046     	 .align 2
+ 478              	.L28:
+ 479 0010 00000000 	 .word xFreeBytesRemaining
+ 480              	 .cfi_endproc
+ 481              	.LFE44:
+ 483              	 .section .text.xPortGetMinimumEverFreeHeapSize,"ax",%progbits
+ 484              	 .align 2
+ 485              	 .global xPortGetMinimumEverFreeHeapSize
+ 486              	 .code 16
+ 487              	 .thumb_func
+ 489              	xPortGetMinimumEverFreeHeapSize:
+ 490              	.LFB45:
+ 320:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+ 321:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 322:../Dave/Generated/FREERTOS/heap_4.h **** size_t xPortGetMinimumEverFreeHeapSize( void )
+ 323:../Dave/Generated/FREERTOS/heap_4.h **** {
+ 491              	 .loc 1 323 0
+ 492              	 .cfi_startproc
+ 493 0000 80B5     	 push {r7,lr}
+ 494              	.LCFI8:
+ 495              	 .cfi_def_cfa_offset 8
+ 496              	 .cfi_offset 7,-8
+ 497              	 .cfi_offset 14,-4
+ 498 0002 00AF     	 add r7,sp,#0
+ 499              	.LCFI9:
+ 500              	 .cfi_def_cfa_register 7
+ 324:../Dave/Generated/FREERTOS/heap_4.h ****     return xMinimumEverFreeBytesRemaining;
+ 501              	 .loc 1 324 0
+ 502 0004 024B     	 ldr r3,.L32
+ 503 0006 1B68     	 ldr r3,[r3]
+ 325:../Dave/Generated/FREERTOS/heap_4.h **** }
+ 504              	 .loc 1 325 0
+ 505 0008 181C     	 mov r0,r3
+ 506 000a BD46     	 mov sp,r7
+ 507              	 
+ 508 000c 80BD     	 pop {r7,pc}
+ 509              	.L33:
+ 510 000e C046     	 .align 2
+ 511              	.L32:
+ 512 0010 00000000 	 .word xMinimumEverFreeBytesRemaining
+ 513              	 .cfi_endproc
+ 514              	.LFE45:
+ 516              	 .section .text.vPortInitialiseBlocks,"ax",%progbits
+ 517              	 .align 2
+ 518              	 .global vPortInitialiseBlocks
+ 519              	 .code 16
+ 520              	 .thumb_func
+ 522              	vPortInitialiseBlocks:
+ 523              	.LFB46:
+ 326:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+ 327:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 328:../Dave/Generated/FREERTOS/heap_4.h **** void vPortInitialiseBlocks( void )
+ 329:../Dave/Generated/FREERTOS/heap_4.h **** {
+ 524              	 .loc 1 329 0
+ 525              	 .cfi_startproc
+ 526 0000 80B5     	 push {r7,lr}
+ 527              	.LCFI10:
+ 528              	 .cfi_def_cfa_offset 8
+ 529              	 .cfi_offset 7,-8
+ 530              	 .cfi_offset 14,-4
+ 531 0002 00AF     	 add r7,sp,#0
+ 532              	.LCFI11:
+ 533              	 .cfi_def_cfa_register 7
+ 330:../Dave/Generated/FREERTOS/heap_4.h ****     /* This just exists to keep the linker quiet. */
+ 331:../Dave/Generated/FREERTOS/heap_4.h **** }
+ 534              	 .loc 1 331 0
+ 535 0004 BD46     	 mov sp,r7
+ 536              	 
+ 537 0006 80BD     	 pop {r7,pc}
+ 538              	 .cfi_endproc
+ 539              	.LFE46:
+ 541              	 .section .text.prvHeapInit,"ax",%progbits
+ 542              	 .align 2
+ 543              	 .code 16
+ 544              	 .thumb_func
+ 546              	prvHeapInit:
+ 547              	.LFB47:
+ 332:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+ 333:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 334:../Dave/Generated/FREERTOS/heap_4.h **** static void prvHeapInit( void ) /* PRIVILEGED_FUNCTION */
+ 335:../Dave/Generated/FREERTOS/heap_4.h **** {
+ 548              	 .loc 1 335 0
+ 549              	 .cfi_startproc
+ 550 0000 80B5     	 push {r7,lr}
+ 551              	.LCFI12:
+ 552              	 .cfi_def_cfa_offset 8
+ 553              	 .cfi_offset 7,-8
+ 554              	 .cfi_offset 14,-4
+ 555 0002 84B0     	 sub sp,sp,#16
+ 556              	.LCFI13:
+ 557              	 .cfi_def_cfa_offset 24
+ 558 0004 00AF     	 add r7,sp,#0
+ 559              	.LCFI14:
+ 560              	 .cfi_def_cfa_register 7
+ 336:../Dave/Generated/FREERTOS/heap_4.h ****     BlockLink_t * pxFirstFreeBlock;
+ 337:../Dave/Generated/FREERTOS/heap_4.h ****     uint8_t * pucAlignedHeap;
+ 338:../Dave/Generated/FREERTOS/heap_4.h ****     size_t uxAddress;
+ 339:../Dave/Generated/FREERTOS/heap_4.h ****     size_t xTotalHeapSize = configTOTAL_HEAP_SIZE;
+ 561              	 .loc 1 339 0
+ 562 0006 274B     	 ldr r3,.L37
+ 563 0008 BB60     	 str r3,[r7,#8]
+ 340:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 341:../Dave/Generated/FREERTOS/heap_4.h ****     /* Ensure the heap starts on a correctly aligned boundary. */
+ 342:../Dave/Generated/FREERTOS/heap_4.h ****     uxAddress = ( size_t ) ucHeap;
+ 564              	 .loc 1 342 0
+ 565 000a 274B     	 ldr r3,.L37+4
+ 566 000c FB60     	 str r3,[r7,#12]
+ 343:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 344:../Dave/Generated/FREERTOS/heap_4.h ****     if( ( uxAddress & portBYTE_ALIGNMENT_MASK ) != 0 )
+ 567              	 .loc 1 344 0
+ 568 000e FB68     	 ldr r3,[r7,#12]
+ 569 0010 0722     	 mov r2,#7
+ 570 0012 1340     	 and r3,r2
+ 571 0014 0CD0     	 beq .L36
+ 345:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 346:../Dave/Generated/FREERTOS/heap_4.h ****         uxAddress += ( portBYTE_ALIGNMENT - 1 );
+ 572              	 .loc 1 346 0
+ 573 0016 FB68     	 ldr r3,[r7,#12]
+ 574 0018 0733     	 add r3,r3,#7
+ 575 001a FB60     	 str r3,[r7,#12]
+ 347:../Dave/Generated/FREERTOS/heap_4.h ****         uxAddress &= ~( ( size_t ) portBYTE_ALIGNMENT_MASK );
+ 576              	 .loc 1 347 0
+ 577 001c FB68     	 ldr r3,[r7,#12]
+ 578 001e 0722     	 mov r2,#7
+ 579 0020 9343     	 bic r3,r2
+ 580 0022 FB60     	 str r3,[r7,#12]
+ 348:../Dave/Generated/FREERTOS/heap_4.h ****         xTotalHeapSize -= uxAddress - ( size_t ) ucHeap;
+ 581              	 .loc 1 348 0
+ 582 0024 BA68     	 ldr r2,[r7,#8]
+ 583 0026 FB68     	 ldr r3,[r7,#12]
+ 584 0028 D21A     	 sub r2,r2,r3
+ 585 002a 1F4B     	 ldr r3,.L37+4
+ 586 002c D318     	 add r3,r2,r3
+ 587 002e BB60     	 str r3,[r7,#8]
+ 588              	.L36:
+ 349:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 350:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 351:../Dave/Generated/FREERTOS/heap_4.h ****     pucAlignedHeap = ( uint8_t * ) uxAddress;
+ 589              	 .loc 1 351 0
+ 590 0030 FB68     	 ldr r3,[r7,#12]
+ 591 0032 7B60     	 str r3,[r7,#4]
+ 352:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 353:../Dave/Generated/FREERTOS/heap_4.h ****     /* xStart is used to hold a pointer to the first item in the list of free
+ 354:../Dave/Generated/FREERTOS/heap_4.h ****      * blocks.  The void cast is used to prevent compiler warnings. */
+ 355:../Dave/Generated/FREERTOS/heap_4.h ****     xStart.pxNextFreeBlock = ( void * ) pucAlignedHeap;
+ 592              	 .loc 1 355 0
+ 593 0034 1D4B     	 ldr r3,.L37+8
+ 594 0036 7A68     	 ldr r2,[r7,#4]
+ 595 0038 1A60     	 str r2,[r3]
+ 356:../Dave/Generated/FREERTOS/heap_4.h ****     xStart.xBlockSize = ( size_t ) 0;
+ 596              	 .loc 1 356 0
+ 597 003a 1C4B     	 ldr r3,.L37+8
+ 598 003c 0022     	 mov r2,#0
+ 599 003e 5A60     	 str r2,[r3,#4]
+ 357:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 358:../Dave/Generated/FREERTOS/heap_4.h ****     /* pxEnd is used to mark the end of the list of free blocks and is inserted
+ 359:../Dave/Generated/FREERTOS/heap_4.h ****      * at the end of the heap space. */
+ 360:../Dave/Generated/FREERTOS/heap_4.h ****     uxAddress = ( ( size_t ) pucAlignedHeap ) + xTotalHeapSize;
+ 600              	 .loc 1 360 0
+ 601 0040 7A68     	 ldr r2,[r7,#4]
+ 602 0042 BB68     	 ldr r3,[r7,#8]
+ 603 0044 D318     	 add r3,r2,r3
+ 604 0046 FB60     	 str r3,[r7,#12]
+ 361:../Dave/Generated/FREERTOS/heap_4.h ****     uxAddress -= xHeapStructSize;
+ 605              	 .loc 1 361 0
+ 606 0048 0822     	 mov r2,#8
+ 607 004a FB68     	 ldr r3,[r7,#12]
+ 608 004c 9B1A     	 sub r3,r3,r2
+ 609 004e FB60     	 str r3,[r7,#12]
+ 362:../Dave/Generated/FREERTOS/heap_4.h ****     uxAddress &= ~( ( size_t ) portBYTE_ALIGNMENT_MASK );
+ 610              	 .loc 1 362 0
+ 611 0050 FB68     	 ldr r3,[r7,#12]
+ 612 0052 0722     	 mov r2,#7
+ 613 0054 9343     	 bic r3,r2
+ 614 0056 FB60     	 str r3,[r7,#12]
+ 363:../Dave/Generated/FREERTOS/heap_4.h ****     pxEnd = ( void * ) uxAddress;
+ 615              	 .loc 1 363 0
+ 616 0058 FA68     	 ldr r2,[r7,#12]
+ 617 005a 154B     	 ldr r3,.L37+12
+ 618 005c 1A60     	 str r2,[r3]
+ 364:../Dave/Generated/FREERTOS/heap_4.h ****     pxEnd->xBlockSize = 0;
+ 619              	 .loc 1 364 0
+ 620 005e 144B     	 ldr r3,.L37+12
+ 621 0060 1B68     	 ldr r3,[r3]
+ 622 0062 0022     	 mov r2,#0
+ 623 0064 5A60     	 str r2,[r3,#4]
+ 365:../Dave/Generated/FREERTOS/heap_4.h ****     pxEnd->pxNextFreeBlock = NULL;
+ 624              	 .loc 1 365 0
+ 625 0066 124B     	 ldr r3,.L37+12
+ 626 0068 1B68     	 ldr r3,[r3]
+ 627 006a 0022     	 mov r2,#0
+ 628 006c 1A60     	 str r2,[r3]
+ 366:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 367:../Dave/Generated/FREERTOS/heap_4.h ****     /* To start with there is a single free block that is sized to take up the
+ 368:../Dave/Generated/FREERTOS/heap_4.h ****      * entire heap space, minus the space taken by pxEnd. */
+ 369:../Dave/Generated/FREERTOS/heap_4.h ****     pxFirstFreeBlock = ( void * ) pucAlignedHeap;
+ 629              	 .loc 1 369 0
+ 630 006e 7B68     	 ldr r3,[r7,#4]
+ 631 0070 3B60     	 str r3,[r7]
+ 370:../Dave/Generated/FREERTOS/heap_4.h ****     pxFirstFreeBlock->xBlockSize = uxAddress - ( size_t ) pxFirstFreeBlock;
+ 632              	 .loc 1 370 0
+ 633 0072 3B68     	 ldr r3,[r7]
+ 634 0074 FA68     	 ldr r2,[r7,#12]
+ 635 0076 D21A     	 sub r2,r2,r3
+ 636 0078 3B68     	 ldr r3,[r7]
+ 637 007a 5A60     	 str r2,[r3,#4]
+ 371:../Dave/Generated/FREERTOS/heap_4.h ****     pxFirstFreeBlock->pxNextFreeBlock = pxEnd;
+ 638              	 .loc 1 371 0
+ 639 007c 0C4B     	 ldr r3,.L37+12
+ 640 007e 1A68     	 ldr r2,[r3]
+ 641 0080 3B68     	 ldr r3,[r7]
+ 642 0082 1A60     	 str r2,[r3]
+ 372:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 373:../Dave/Generated/FREERTOS/heap_4.h ****     /* Only one block exists - and it covers the entire usable heap space. */
+ 374:../Dave/Generated/FREERTOS/heap_4.h ****     xMinimumEverFreeBytesRemaining = pxFirstFreeBlock->xBlockSize;
+ 643              	 .loc 1 374 0
+ 644 0084 3B68     	 ldr r3,[r7]
+ 645 0086 5A68     	 ldr r2,[r3,#4]
+ 646 0088 0A4B     	 ldr r3,.L37+16
+ 647 008a 1A60     	 str r2,[r3]
+ 375:../Dave/Generated/FREERTOS/heap_4.h ****     xFreeBytesRemaining = pxFirstFreeBlock->xBlockSize;
+ 648              	 .loc 1 375 0
+ 649 008c 3B68     	 ldr r3,[r7]
+ 650 008e 5A68     	 ldr r2,[r3,#4]
+ 651 0090 094B     	 ldr r3,.L37+20
+ 652 0092 1A60     	 str r2,[r3]
+ 376:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 377:../Dave/Generated/FREERTOS/heap_4.h ****     /* Work out the position of the top bit in a size_t variable. */
+ 378:../Dave/Generated/FREERTOS/heap_4.h ****     xBlockAllocatedBit = ( ( size_t ) 1 ) << ( ( sizeof( size_t ) * heapBITS_PER_BYTE ) - 1 );
+ 653              	 .loc 1 378 0
+ 654 0094 094B     	 ldr r3,.L37+24
+ 655 0096 8022     	 mov r2,#128
+ 656 0098 1206     	 lsl r2,r2,#24
+ 657 009a 1A60     	 str r2,[r3]
+ 379:../Dave/Generated/FREERTOS/heap_4.h **** }
+ 658              	 .loc 1 379 0
+ 659 009c BD46     	 mov sp,r7
+ 660 009e 04B0     	 add sp,sp,#16
+ 661              	 
+ 662 00a0 80BD     	 pop {r7,pc}
+ 663              	.L38:
+ 664 00a2 C046     	 .align 2
+ 665              	.L37:
+ 666 00a4 10270000 	 .word 10000
+ 667 00a8 00000000 	 .word ucHeap
+ 668 00ac 00000000 	 .word xStart
+ 669 00b0 00000000 	 .word pxEnd
+ 670 00b4 00000000 	 .word xMinimumEverFreeBytesRemaining
+ 671 00b8 00000000 	 .word xFreeBytesRemaining
+ 672 00bc 00000000 	 .word xBlockAllocatedBit
+ 673              	 .cfi_endproc
+ 674              	.LFE47:
+ 676              	 .section .text.prvInsertBlockIntoFreeList,"ax",%progbits
+ 677              	 .align 2
+ 678              	 .code 16
+ 679              	 .thumb_func
+ 681              	prvInsertBlockIntoFreeList:
+ 682              	.LFB48:
+ 380:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+ 381:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 382:../Dave/Generated/FREERTOS/heap_4.h **** static void prvInsertBlockIntoFreeList( BlockLink_t * pxBlockToInsert ) /* PRIVILEGED_FUNCTION */
+ 383:../Dave/Generated/FREERTOS/heap_4.h **** {
+ 683              	 .loc 1 383 0
+ 684              	 .cfi_startproc
+ 685 0000 80B5     	 push {r7,lr}
+ 686              	.LCFI15:
+ 687              	 .cfi_def_cfa_offset 8
+ 688              	 .cfi_offset 7,-8
+ 689              	 .cfi_offset 14,-4
+ 690 0002 84B0     	 sub sp,sp,#16
+ 691              	.LCFI16:
+ 692              	 .cfi_def_cfa_offset 24
+ 693 0004 00AF     	 add r7,sp,#0
+ 694              	.LCFI17:
+ 695              	 .cfi_def_cfa_register 7
+ 696 0006 7860     	 str r0,[r7,#4]
+ 384:../Dave/Generated/FREERTOS/heap_4.h ****     BlockLink_t * pxIterator;
+ 385:../Dave/Generated/FREERTOS/heap_4.h ****     uint8_t * puc;
+ 386:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 387:../Dave/Generated/FREERTOS/heap_4.h ****     /* Iterate through the list until a block is found that has a higher address
+ 388:../Dave/Generated/FREERTOS/heap_4.h ****      * than the block being inserted. */
+ 389:../Dave/Generated/FREERTOS/heap_4.h ****     for( pxIterator = &xStart; pxIterator->pxNextFreeBlock < pxBlockToInsert; pxIterator = pxIterat
+ 697              	 .loc 1 389 0
+ 698 0008 264B     	 ldr r3,.L48
+ 699 000a FB60     	 str r3,[r7,#12]
+ 700 000c 02E0     	 b .L40
+ 701              	.L41:
+ 702              	 .loc 1 389 0 is_stmt 0 discriminator 3
+ 703 000e FB68     	 ldr r3,[r7,#12]
+ 704 0010 1B68     	 ldr r3,[r3]
+ 705 0012 FB60     	 str r3,[r7,#12]
+ 706              	.L40:
+ 707              	 .loc 1 389 0 discriminator 1
+ 708 0014 FB68     	 ldr r3,[r7,#12]
+ 709 0016 1A68     	 ldr r2,[r3]
+ 710 0018 7B68     	 ldr r3,[r7,#4]
+ 711 001a 9A42     	 cmp r2,r3
+ 712 001c F7D3     	 bcc .L41
+ 390:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 391:../Dave/Generated/FREERTOS/heap_4.h ****         /* Nothing to do here, just iterate to the right position. */
+ 392:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 393:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 394:../Dave/Generated/FREERTOS/heap_4.h ****     /* Do the block being inserted, and the block it is being inserted after
+ 395:../Dave/Generated/FREERTOS/heap_4.h ****      * make a contiguous block of memory? */
+ 396:../Dave/Generated/FREERTOS/heap_4.h ****     puc = ( uint8_t * ) pxIterator;
+ 713              	 .loc 1 396 0 is_stmt 1
+ 714 001e FB68     	 ldr r3,[r7,#12]
+ 715 0020 BB60     	 str r3,[r7,#8]
+ 397:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 398:../Dave/Generated/FREERTOS/heap_4.h ****     if( ( puc + pxIterator->xBlockSize ) == ( uint8_t * ) pxBlockToInsert )
+ 716              	 .loc 1 398 0
+ 717 0022 FB68     	 ldr r3,[r7,#12]
+ 718 0024 5B68     	 ldr r3,[r3,#4]
+ 719 0026 BA68     	 ldr r2,[r7,#8]
+ 720 0028 D218     	 add r2,r2,r3
+ 721 002a 7B68     	 ldr r3,[r7,#4]
+ 722 002c 9A42     	 cmp r2,r3
+ 723 002e 08D1     	 bne .L42
+ 399:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 400:../Dave/Generated/FREERTOS/heap_4.h ****         pxIterator->xBlockSize += pxBlockToInsert->xBlockSize;
+ 724              	 .loc 1 400 0
+ 725 0030 FB68     	 ldr r3,[r7,#12]
+ 726 0032 5A68     	 ldr r2,[r3,#4]
+ 727 0034 7B68     	 ldr r3,[r7,#4]
+ 728 0036 5B68     	 ldr r3,[r3,#4]
+ 729 0038 D218     	 add r2,r2,r3
+ 730 003a FB68     	 ldr r3,[r7,#12]
+ 731 003c 5A60     	 str r2,[r3,#4]
+ 401:../Dave/Generated/FREERTOS/heap_4.h ****         pxBlockToInsert = pxIterator;
+ 732              	 .loc 1 401 0
+ 733 003e FB68     	 ldr r3,[r7,#12]
+ 734 0040 7B60     	 str r3,[r7,#4]
+ 735              	.L42:
+ 402:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 403:../Dave/Generated/FREERTOS/heap_4.h ****     else
+ 404:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 405:../Dave/Generated/FREERTOS/heap_4.h ****         mtCOVERAGE_TEST_MARKER();
+ 406:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 407:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 408:../Dave/Generated/FREERTOS/heap_4.h ****     /* Do the block being inserted, and the block it is being inserted before
+ 409:../Dave/Generated/FREERTOS/heap_4.h ****      * make a contiguous block of memory? */
+ 410:../Dave/Generated/FREERTOS/heap_4.h ****     puc = ( uint8_t * ) pxBlockToInsert;
+ 736              	 .loc 1 410 0
+ 737 0042 7B68     	 ldr r3,[r7,#4]
+ 738 0044 BB60     	 str r3,[r7,#8]
+ 411:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 412:../Dave/Generated/FREERTOS/heap_4.h ****     if( ( puc + pxBlockToInsert->xBlockSize ) == ( uint8_t * ) pxIterator->pxNextFreeBlock )
+ 739              	 .loc 1 412 0
+ 740 0046 7B68     	 ldr r3,[r7,#4]
+ 741 0048 5B68     	 ldr r3,[r3,#4]
+ 742 004a BA68     	 ldr r2,[r7,#8]
+ 743 004c D218     	 add r2,r2,r3
+ 744 004e FB68     	 ldr r3,[r7,#12]
+ 745 0050 1B68     	 ldr r3,[r3]
+ 746 0052 9A42     	 cmp r2,r3
+ 747 0054 18D1     	 bne .L43
+ 413:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 414:../Dave/Generated/FREERTOS/heap_4.h ****         if( pxIterator->pxNextFreeBlock != pxEnd )
+ 748              	 .loc 1 414 0
+ 749 0056 FB68     	 ldr r3,[r7,#12]
+ 750 0058 1A68     	 ldr r2,[r3]
+ 751 005a 134B     	 ldr r3,.L48+4
+ 752 005c 1B68     	 ldr r3,[r3]
+ 753 005e 9A42     	 cmp r2,r3
+ 754 0060 0DD0     	 beq .L44
+ 415:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 416:../Dave/Generated/FREERTOS/heap_4.h ****             /* Form one big block from the two blocks. */
+ 417:../Dave/Generated/FREERTOS/heap_4.h ****             pxBlockToInsert->xBlockSize += pxIterator->pxNextFreeBlock->xBlockSize;
+ 755              	 .loc 1 417 0
+ 756 0062 7B68     	 ldr r3,[r7,#4]
+ 757 0064 5A68     	 ldr r2,[r3,#4]
+ 758 0066 FB68     	 ldr r3,[r7,#12]
+ 759 0068 1B68     	 ldr r3,[r3]
+ 760 006a 5B68     	 ldr r3,[r3,#4]
+ 761 006c D218     	 add r2,r2,r3
+ 762 006e 7B68     	 ldr r3,[r7,#4]
+ 763 0070 5A60     	 str r2,[r3,#4]
+ 418:../Dave/Generated/FREERTOS/heap_4.h ****             pxBlockToInsert->pxNextFreeBlock = pxIterator->pxNextFreeBlock->pxNextFreeBlock;
+ 764              	 .loc 1 418 0
+ 765 0072 FB68     	 ldr r3,[r7,#12]
+ 766 0074 1B68     	 ldr r3,[r3]
+ 767 0076 1A68     	 ldr r2,[r3]
+ 768 0078 7B68     	 ldr r3,[r7,#4]
+ 769 007a 1A60     	 str r2,[r3]
+ 770 007c 08E0     	 b .L46
+ 771              	.L44:
+ 419:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 420:../Dave/Generated/FREERTOS/heap_4.h ****         else
+ 421:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 422:../Dave/Generated/FREERTOS/heap_4.h ****             pxBlockToInsert->pxNextFreeBlock = pxEnd;
+ 772              	 .loc 1 422 0
+ 773 007e 0A4B     	 ldr r3,.L48+4
+ 774 0080 1A68     	 ldr r2,[r3]
+ 775 0082 7B68     	 ldr r3,[r7,#4]
+ 776 0084 1A60     	 str r2,[r3]
+ 777 0086 03E0     	 b .L46
+ 778              	.L43:
+ 423:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 424:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 425:../Dave/Generated/FREERTOS/heap_4.h ****     else
+ 426:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 427:../Dave/Generated/FREERTOS/heap_4.h ****         pxBlockToInsert->pxNextFreeBlock = pxIterator->pxNextFreeBlock;
+ 779              	 .loc 1 427 0
+ 780 0088 FB68     	 ldr r3,[r7,#12]
+ 781 008a 1A68     	 ldr r2,[r3]
+ 782 008c 7B68     	 ldr r3,[r7,#4]
+ 783 008e 1A60     	 str r2,[r3]
+ 784              	.L46:
+ 428:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 429:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 430:../Dave/Generated/FREERTOS/heap_4.h ****     /* If the block being inserted plugged a gab, so was merged with the block
+ 431:../Dave/Generated/FREERTOS/heap_4.h ****      * before and the block after, then it's pxNextFreeBlock pointer will have
+ 432:../Dave/Generated/FREERTOS/heap_4.h ****      * already been set, and should not be set here as that would make it point
+ 433:../Dave/Generated/FREERTOS/heap_4.h ****      * to itself. */
+ 434:../Dave/Generated/FREERTOS/heap_4.h ****     if( pxIterator != pxBlockToInsert )
+ 785              	 .loc 1 434 0
+ 786 0090 FA68     	 ldr r2,[r7,#12]
+ 787 0092 7B68     	 ldr r3,[r7,#4]
+ 788 0094 9A42     	 cmp r2,r3
+ 789 0096 02D0     	 beq .L39
+ 435:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 436:../Dave/Generated/FREERTOS/heap_4.h ****         pxIterator->pxNextFreeBlock = pxBlockToInsert;
+ 790              	 .loc 1 436 0
+ 791 0098 FB68     	 ldr r3,[r7,#12]
+ 792 009a 7A68     	 ldr r2,[r7,#4]
+ 793 009c 1A60     	 str r2,[r3]
+ 794              	.L39:
+ 437:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 438:../Dave/Generated/FREERTOS/heap_4.h ****     else
+ 439:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 440:../Dave/Generated/FREERTOS/heap_4.h ****         mtCOVERAGE_TEST_MARKER();
+ 441:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 442:../Dave/Generated/FREERTOS/heap_4.h **** }
+ 795              	 .loc 1 442 0
+ 796 009e BD46     	 mov sp,r7
+ 797 00a0 04B0     	 add sp,sp,#16
+ 798              	 
+ 799 00a2 80BD     	 pop {r7,pc}
+ 800              	.L49:
+ 801              	 .align 2
+ 802              	.L48:
+ 803 00a4 00000000 	 .word xStart
+ 804 00a8 00000000 	 .word pxEnd
+ 805              	 .cfi_endproc
+ 806              	.LFE48:
+ 808              	 .section .text.vPortGetHeapStats,"ax",%progbits
+ 809              	 .align 2
+ 810              	 .global vPortGetHeapStats
+ 811              	 .code 16
+ 812              	 .thumb_func
+ 814              	vPortGetHeapStats:
+ 815              	.LFB49:
+ 443:../Dave/Generated/FREERTOS/heap_4.h **** /*-----------------------------------------------------------*/
+ 444:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 445:../Dave/Generated/FREERTOS/heap_4.h **** void vPortGetHeapStats( HeapStats_t * pxHeapStats )
+ 446:../Dave/Generated/FREERTOS/heap_4.h **** {
+ 816              	 .loc 1 446 0
+ 817              	 .cfi_startproc
+ 818 0000 80B5     	 push {r7,lr}
+ 819              	.LCFI18:
+ 820              	 .cfi_def_cfa_offset 8
+ 821              	 .cfi_offset 7,-8
+ 822              	 .cfi_offset 14,-4
+ 823 0002 86B0     	 sub sp,sp,#24
+ 824              	.LCFI19:
+ 825              	 .cfi_def_cfa_offset 32
+ 826 0004 00AF     	 add r7,sp,#0
+ 827              	.LCFI20:
+ 828              	 .cfi_def_cfa_register 7
+ 829 0006 7860     	 str r0,[r7,#4]
+ 447:../Dave/Generated/FREERTOS/heap_4.h ****     BlockLink_t * pxBlock;
+ 448:../Dave/Generated/FREERTOS/heap_4.h ****     size_t xBlocks = 0, xMaxSize = 0, xMinSize = portMAX_DELAY; /* portMAX_DELAY used as a portable
+ 830              	 .loc 1 448 0
+ 831 0008 0023     	 mov r3,#0
+ 832 000a 3B61     	 str r3,[r7,#16]
+ 833 000c 0023     	 mov r3,#0
+ 834 000e FB60     	 str r3,[r7,#12]
+ 835 0010 0123     	 mov r3,#1
+ 836 0012 5B42     	 neg r3,r3
+ 837 0014 BB60     	 str r3,[r7,#8]
+ 449:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 450:../Dave/Generated/FREERTOS/heap_4.h ****     vTaskSuspendAll();
+ 838              	 .loc 1 450 0
+ 839 0016 FFF7FEFF 	 bl vTaskSuspendAll
+ 451:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 452:../Dave/Generated/FREERTOS/heap_4.h ****         pxBlock = xStart.pxNextFreeBlock;
+ 840              	 .loc 1 452 0
+ 841 001a 214B     	 ldr r3,.L55
+ 842 001c 1B68     	 ldr r3,[r3]
+ 843 001e 7B61     	 str r3,[r7,#20]
+ 453:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 454:../Dave/Generated/FREERTOS/heap_4.h ****         /* pxBlock will be NULL if the heap has not been initialised.  The heap
+ 455:../Dave/Generated/FREERTOS/heap_4.h ****          * is initialised automatically when the first allocation is made. */
+ 456:../Dave/Generated/FREERTOS/heap_4.h ****         if( pxBlock != NULL )
+ 844              	 .loc 1 456 0
+ 845 0020 7B69     	 ldr r3,[r7,#20]
+ 846 0022 002B     	 cmp r3,#0
+ 847 0024 1AD0     	 beq .L51
+ 848              	.L54:
+ 457:../Dave/Generated/FREERTOS/heap_4.h ****         {
+ 458:../Dave/Generated/FREERTOS/heap_4.h ****             do
+ 459:../Dave/Generated/FREERTOS/heap_4.h ****             {
+ 460:../Dave/Generated/FREERTOS/heap_4.h ****                 /* Increment the number of blocks and record the largest block seen
+ 461:../Dave/Generated/FREERTOS/heap_4.h ****                  * so far. */
+ 462:../Dave/Generated/FREERTOS/heap_4.h ****                 xBlocks++;
+ 849              	 .loc 1 462 0
+ 850 0026 3B69     	 ldr r3,[r7,#16]
+ 851 0028 0133     	 add r3,r3,#1
+ 852 002a 3B61     	 str r3,[r7,#16]
+ 463:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 464:../Dave/Generated/FREERTOS/heap_4.h ****                 if( pxBlock->xBlockSize > xMaxSize )
+ 853              	 .loc 1 464 0
+ 854 002c 7B69     	 ldr r3,[r7,#20]
+ 855 002e 5A68     	 ldr r2,[r3,#4]
+ 856 0030 FB68     	 ldr r3,[r7,#12]
+ 857 0032 9A42     	 cmp r2,r3
+ 858 0034 02D9     	 bls .L52
+ 465:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 466:../Dave/Generated/FREERTOS/heap_4.h ****                     xMaxSize = pxBlock->xBlockSize;
+ 859              	 .loc 1 466 0
+ 860 0036 7B69     	 ldr r3,[r7,#20]
+ 861 0038 5B68     	 ldr r3,[r3,#4]
+ 862 003a FB60     	 str r3,[r7,#12]
+ 863              	.L52:
+ 467:../Dave/Generated/FREERTOS/heap_4.h ****                 }
+ 468:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 469:../Dave/Generated/FREERTOS/heap_4.h ****                 if( pxBlock->xBlockSize < xMinSize )
+ 864              	 .loc 1 469 0
+ 865 003c 7B69     	 ldr r3,[r7,#20]
+ 866 003e 5A68     	 ldr r2,[r3,#4]
+ 867 0040 BB68     	 ldr r3,[r7,#8]
+ 868 0042 9A42     	 cmp r2,r3
+ 869 0044 02D2     	 bcs .L53
+ 470:../Dave/Generated/FREERTOS/heap_4.h ****                 {
+ 471:../Dave/Generated/FREERTOS/heap_4.h ****                     xMinSize = pxBlock->xBlockSize;
+ 870              	 .loc 1 471 0
+ 871 0046 7B69     	 ldr r3,[r7,#20]
+ 872 0048 5B68     	 ldr r3,[r3,#4]
+ 873 004a BB60     	 str r3,[r7,#8]
+ 874              	.L53:
+ 472:../Dave/Generated/FREERTOS/heap_4.h ****                 }
+ 473:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 474:../Dave/Generated/FREERTOS/heap_4.h ****                 /* Move to the next block in the chain until the last block is
+ 475:../Dave/Generated/FREERTOS/heap_4.h ****                  * reached. */
+ 476:../Dave/Generated/FREERTOS/heap_4.h ****                 pxBlock = pxBlock->pxNextFreeBlock;
+ 875              	 .loc 1 476 0
+ 876 004c 7B69     	 ldr r3,[r7,#20]
+ 877 004e 1B68     	 ldr r3,[r3]
+ 878 0050 7B61     	 str r3,[r7,#20]
+ 477:../Dave/Generated/FREERTOS/heap_4.h ****             } while( pxBlock != pxEnd );
+ 879              	 .loc 1 477 0
+ 880 0052 144B     	 ldr r3,.L55+4
+ 881 0054 1B68     	 ldr r3,[r3]
+ 882 0056 7A69     	 ldr r2,[r7,#20]
+ 883 0058 9A42     	 cmp r2,r3
+ 884 005a E4D1     	 bne .L54
+ 885              	.L51:
+ 478:../Dave/Generated/FREERTOS/heap_4.h ****         }
+ 479:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 480:../Dave/Generated/FREERTOS/heap_4.h ****     ( void ) xTaskResumeAll();
+ 886              	 .loc 1 480 0
+ 887 005c FFF7FEFF 	 bl xTaskResumeAll
+ 481:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 482:../Dave/Generated/FREERTOS/heap_4.h ****     pxHeapStats->xSizeOfLargestFreeBlockInBytes = xMaxSize;
+ 888              	 .loc 1 482 0
+ 889 0060 7B68     	 ldr r3,[r7,#4]
+ 890 0062 FA68     	 ldr r2,[r7,#12]
+ 891 0064 5A60     	 str r2,[r3,#4]
+ 483:../Dave/Generated/FREERTOS/heap_4.h ****     pxHeapStats->xSizeOfSmallestFreeBlockInBytes = xMinSize;
+ 892              	 .loc 1 483 0
+ 893 0066 7B68     	 ldr r3,[r7,#4]
+ 894 0068 BA68     	 ldr r2,[r7,#8]
+ 895 006a 9A60     	 str r2,[r3,#8]
+ 484:../Dave/Generated/FREERTOS/heap_4.h ****     pxHeapStats->xNumberOfFreeBlocks = xBlocks;
+ 896              	 .loc 1 484 0
+ 897 006c 7B68     	 ldr r3,[r7,#4]
+ 898 006e 3A69     	 ldr r2,[r7,#16]
+ 899 0070 DA60     	 str r2,[r3,#12]
+ 485:../Dave/Generated/FREERTOS/heap_4.h **** 
+ 486:../Dave/Generated/FREERTOS/heap_4.h ****     taskENTER_CRITICAL();
+ 900              	 .loc 1 486 0
+ 901 0072 FFF7FEFF 	 bl vPortEnterCritical
+ 487:../Dave/Generated/FREERTOS/heap_4.h ****     {
+ 488:../Dave/Generated/FREERTOS/heap_4.h ****         pxHeapStats->xAvailableHeapSpaceInBytes = xFreeBytesRemaining;
+ 902              	 .loc 1 488 0
+ 903 0076 0C4B     	 ldr r3,.L55+8
+ 904 0078 1A68     	 ldr r2,[r3]
+ 905 007a 7B68     	 ldr r3,[r7,#4]
+ 906 007c 1A60     	 str r2,[r3]
+ 489:../Dave/Generated/FREERTOS/heap_4.h ****         pxHeapStats->xNumberOfSuccessfulAllocations = xNumberOfSuccessfulAllocations;
+ 907              	 .loc 1 489 0
+ 908 007e 0B4B     	 ldr r3,.L55+12
+ 909 0080 1A68     	 ldr r2,[r3]
+ 910 0082 7B68     	 ldr r3,[r7,#4]
+ 911 0084 5A61     	 str r2,[r3,#20]
+ 490:../Dave/Generated/FREERTOS/heap_4.h ****         pxHeapStats->xNumberOfSuccessfulFrees = xNumberOfSuccessfulFrees;
+ 912              	 .loc 1 490 0
+ 913 0086 0A4B     	 ldr r3,.L55+16
+ 914 0088 1A68     	 ldr r2,[r3]
+ 915 008a 7B68     	 ldr r3,[r7,#4]
+ 916 008c 9A61     	 str r2,[r3,#24]
+ 491:../Dave/Generated/FREERTOS/heap_4.h ****         pxHeapStats->xMinimumEverFreeBytesRemaining = xMinimumEverFreeBytesRemaining;
+ 917              	 .loc 1 491 0
+ 918 008e 094B     	 ldr r3,.L55+20
+ 919 0090 1A68     	 ldr r2,[r3]
+ 920 0092 7B68     	 ldr r3,[r7,#4]
+ 921 0094 1A61     	 str r2,[r3,#16]
+ 492:../Dave/Generated/FREERTOS/heap_4.h ****     }
+ 493:../Dave/Generated/FREERTOS/heap_4.h ****     taskEXIT_CRITICAL();
+ 922              	 .loc 1 493 0
+ 923 0096 FFF7FEFF 	 bl vPortExitCritical
+ 494:../Dave/Generated/FREERTOS/heap_4.h **** }
+ 924              	 .loc 1 494 0
+ 925 009a BD46     	 mov sp,r7
+ 926 009c 06B0     	 add sp,sp,#24
+ 927              	 
+ 928 009e 80BD     	 pop {r7,pc}
+ 929              	.L56:
+ 930              	 .align 2
+ 931              	.L55:
+ 932 00a0 00000000 	 .word xStart
+ 933 00a4 00000000 	 .word pxEnd
+ 934 00a8 00000000 	 .word xFreeBytesRemaining
+ 935 00ac 00000000 	 .word xNumberOfSuccessfulAllocations
+ 936 00b0 00000000 	 .word xNumberOfSuccessfulFrees
+ 937 00b4 00000000 	 .word xMinimumEverFreeBytesRemaining
+ 938              	 .cfi_endproc
+ 939              	.LFE49:
+ 941              	 .text
+ 942              	.Letext0:
+ 943              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 944              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 945              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
+ 946              	 .file 5 "C:/Users/sankar/Desktop/DAVE ide/Uart_demo/RTOS_Demo/Dave/Generated/FREERTOS/portable/GCC/portmacro.h"
+ 947              	 .file 6 "../Dave/Generated/FREERTOS/portable.h"
+ 948              	 .file 7 "C:/Users/sankar/Desktop/DAVE ide/Uart_demo/RTOS_Demo/Libraries/CMSIS/Include/cmsis_gcc.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 heap.c
+    {standard input}:18     .bss.ucHeap:00000000 $d
+    {standard input}:21     .bss.ucHeap:00000000 ucHeap
+    {standard input}:24     .rodata.xHeapStructSize:00000000 $d
+    {standard input}:27     .rodata.xHeapStructSize:00000000 xHeapStructSize
+    {standard input}:30     .bss.xStart:00000000 $d
+    {standard input}:33     .bss.xStart:00000000 xStart
+    {standard input}:36     .bss.pxEnd:00000000 $d
+    {standard input}:39     .bss.pxEnd:00000000 pxEnd
+    {standard input}:42     .bss.xFreeBytesRemaining:00000000 $d
+    {standard input}:45     .bss.xFreeBytesRemaining:00000000 xFreeBytesRemaining
+    {standard input}:48     .bss.xMinimumEverFreeBytesRemaining:00000000 $d
+    {standard input}:51     .bss.xMinimumEverFreeBytesRemaining:00000000 xMinimumEverFreeBytesRemaining
+    {standard input}:54     .bss.xNumberOfSuccessfulAllocations:00000000 $d
+    {standard input}:57     .bss.xNumberOfSuccessfulAllocations:00000000 xNumberOfSuccessfulAllocations
+    {standard input}:60     .bss.xNumberOfSuccessfulFrees:00000000 $d
+    {standard input}:63     .bss.xNumberOfSuccessfulFrees:00000000 xNumberOfSuccessfulFrees
+    {standard input}:66     .bss.xBlockAllocatedBit:00000000 $d
+    {standard input}:69     .bss.xBlockAllocatedBit:00000000 xBlockAllocatedBit
+    {standard input}:72     .text.pvPortMalloc:00000000 $t
+    {standard input}:77     .text.pvPortMalloc:00000000 pvPortMalloc
+    {standard input}:546    .text.prvHeapInit:00000000 prvHeapInit
+    {standard input}:681    .text.prvInsertBlockIntoFreeList:00000000 prvInsertBlockIntoFreeList
+    {standard input}:316    .text.pvPortMalloc:00000140 $d
+    {standard input}:326    .text.vPortFree:00000000 $t
+    {standard input}:331    .text.vPortFree:00000000 vPortFree
+    {standard input}:444    .text.vPortFree:00000090 $d
+    {standard input}:451    .text.xPortGetFreeHeapSize:00000000 $t
+    {standard input}:456    .text.xPortGetFreeHeapSize:00000000 xPortGetFreeHeapSize
+    {standard input}:479    .text.xPortGetFreeHeapSize:00000010 $d
+    {standard input}:484    .text.xPortGetMinimumEverFreeHeapSize:00000000 $t
+    {standard input}:489    .text.xPortGetMinimumEverFreeHeapSize:00000000 xPortGetMinimumEverFreeHeapSize
+    {standard input}:512    .text.xPortGetMinimumEverFreeHeapSize:00000010 $d
+    {standard input}:517    .text.vPortInitialiseBlocks:00000000 $t
+    {standard input}:522    .text.vPortInitialiseBlocks:00000000 vPortInitialiseBlocks
+    {standard input}:542    .text.prvHeapInit:00000000 $t
+    {standard input}:666    .text.prvHeapInit:000000a4 $d
+    {standard input}:677    .text.prvInsertBlockIntoFreeList:00000000 $t
+    {standard input}:803    .text.prvInsertBlockIntoFreeList:000000a4 $d
+    {standard input}:809    .text.vPortGetHeapStats:00000000 $t
+    {standard input}:814    .text.vPortGetHeapStats:00000000 vPortGetHeapStats
+    {standard input}:932    .text.vPortGetHeapStats:000000a0 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+vTaskSuspendAll
+xTaskResumeAll
+vPortEnterCritical
+vPortExitCritical
